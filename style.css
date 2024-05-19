@@ -1,22 +1,29 @@
-.card {
+.basic_card {
     background-color: #f7f7f7;
     color: #000000;
     padding: 20px;
     border-radius: 10px;
     text-align: left;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    margin: 10px;
+    margin: 20px auto;
     height: 150px;
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    flex-direction: row;
-    /* flex-direction: column;
-    justify-content: center; */
+    box-sizing: border-box;
 }
 
-.block-container {
-    padding-bottom: 0rem !important;
+.basic_card_row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.basic_card_row_item {
+    font-size: 15px;
+    text-align: left;
+    flex: 1;
+}
+
+.gender-info {
+    font-size: 15px;
+    text-align: left;
 }
 
 .title {
@@ -29,6 +36,15 @@
     font-weight: 600;
 }
 
+.sub-list-title {
+    font-size: 14px;
+}
+
+.flex_container {
+    display: flex;
+    justify-content: space-between;
+}
+
 .bullet_green {
     color: green;
     font-size: 24px;
@@ -37,6 +53,18 @@
 
 .bullet_orange {
     color: #FF780A;
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.bullet_yellow {
+    color: #F5B406;
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.bullet_blue {
+    color: #0050D6;
     font-size: 24px;
     margin-right: 10px;
 }

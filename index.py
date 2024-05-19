@@ -44,12 +44,7 @@ def master_query(gender_filter, education_level_filter, specialization_filter, r
                 COUNT(DISTINCT r.id) as total_regions,
                 COUNT(DISTINCT z.id) as total_zones,
                 COUNT(DISTINCT w.id) as total_woredas,
-                COUNT(DISTINCT k.id) as total_kebeles,
-                (SELECT COUNT(da_inner.id) FROM registry_developmentagent da_inner
-                JOIN registry_kebele k_inner ON da_inner.kebele_id = k_inner.id
-                JOIN registry_woreda w_inner ON k_inner.woreda_id = w_inner.id
-                JOIN registry_zone z_inner ON w_inner.zone_id = z_inner.id
-                JOIN registry_region r_inner ON z_inner.region_id = r_inner.id) as count_da_by_region
+                COUNT(DISTINCT k.id) as total_kebeles
             FROM registry_developmentagent da
             JOIN registry_kebele k ON da.kebele_id = k.id
             JOIN registry_woreda w ON k.woreda_id = w.id
@@ -76,6 +71,20 @@ def master_query(gender_filter, education_level_filter, specialization_filter, r
     if kebele_filter != 'none':
         query += f" AND k.name = '{kebele_filter}'"
     
+    return query
+
+def get_das_by_region():
+    query = """
+        SELECT 
+        COUNT(da.id) as total_no_of_das,
+        r."name" as region_name
+        FROM registry_developmentagent da
+        JOIN registry_kebele k ON da.kebele_id = k.id
+        JOIN registry_woreda w ON k.woreda_id = w.id
+        JOIN registry_zone z ON w.zone_id = z.id
+        JOIN registry_region r ON z.region_id = r.id
+        GROUP BY r."name";
+    """
     return query
 
 # Functions to fetch filter options
@@ -115,10 +124,11 @@ def main():
     with open("style.css", "r") as f:
         css = f.read()
     st.markdown(f'<style>{css}</style>', unsafe_allow_html=True)
+    st.markdown("""
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    """, unsafe_allow_html=True)
     
-    st.subheader("Total Stats")
-    col1, col2, col3, col4, col5, col6 = st.columns([1, 1, 1, 1, 1, 1])
-    st.subheader("Filter by")
+    st.subheader("Filter By")
     col21, col22, col23, col24, col25, col26, col27 = st.columns([1, 1, 1, 1, 1, 1, 1])
     
     # Fetch initial filter options
@@ -164,31 +174,84 @@ def main():
     total_zones = result[6]
     total_woredas = result[7]
     total_kebeles = result[8]
-    count_da_by_region = result[9]
 
-    # Print the values or use them as needed
-    print("Total number of Development Agents:", total_no_of_das)
-    print("Average number of Development Agents per Kebele:", average_da_per_kebele)
-    print("Count of Male Development Agents:", count_male_da)
-    print("Count of Female Development Agents:", count_female_da)
-    print("Total number of Specializations:", total_specialization)
-    print("Total number of Regions:", total_regions)
-    print("Total number of Zones:", total_zones)
-    print("Total number of Woredas:", total_woredas)
-    print("Total number of Kebeles:", total_kebeles)
-    print("Count of Development Agents by Region:", count_da_by_region)
-    with col1:
-        st.markdown(f'<div class="card"><div class="title"></div><div class="sub-title"><span class="bullet_green">&#8226;</span> {"efebfewbfjwenbfjkewnfjkewbfjdbejfwebdbewj"}</div></div>', unsafe_allow_html=True)
-    with col2:
-        st.markdown(f'<div class="card"><div class="title"></div><div class="sub-title"><span class="bullet_green">&#8226;</span> {"efebfewbfjwenbfjkewnfjkewbfjdbejfwebdbewj"}</div></div>', unsafe_allow_html=True)
-    with col3:
-        st.markdown(f'<div class="card"><div class="title"></div><div class="sub-title"><span class="bullet_green">&#8226;</span> {"efebfewbfjwenbfjkewnfjkewbfjdbejfwebdbewj"}</div></div>', unsafe_allow_html=True)
-    with col4:
-        st.markdown(f'<div class="card"><div class="title"></div><div class="sub-title"><span class="bullet_green">&#8226;</span> {"efebfewbfjwenbfjkewnfjkewbfjdbejfwebdbewj"}</div></div>', unsafe_allow_html=True)
-    with col5:
-        st.markdown(f'<div class="card"><div class="title"></div><div class="sub-title"><span class="bullet_green">&#8226;</span> {"efebfewbfjwenbfjkewnfjkewbfjdbejfwebdbewj"}</div></div>', unsafe_allow_html=True)
-    with col6:
-        st.markdown(f'<div class="card"><div class="title"></div><div class="sub-title"><span class="bullet_green">&#8226;</span> {"efebfewbfjwenbfjkewnfjkewbfjdbejfwebdbewj"}</div></div>', unsafe_allow_html=True)
+    data = {
+        "Gender": ["Male", "Female"],
+        "Count": [count_male_da, count_female_da]
+    }
+    df = pd.DataFrame(data)
+
+    # Calculate total and percentages
+    df['Percentage'] = (df['Count'] / df['Count'].sum()) * 100
+
+    # Display results
+    percentage_male = df.loc[df['Gender'] == 'Male', 'Percentage'].values[0]
+    percentage_female = df.loc[df['Gender'] == 'Female', 'Percentage'].values[0]
+    das_by_region = fetch_data(get_das_by_region())
+    
+    das_by_region_df = pd.DataFrame(das_by_region, columns=['count', 'region'])
+    total_count = das_by_region_df['count'].sum()
+    das_by_region_df['percentage'] = (das_by_region_df['count'] / total_count * 100).round(2)
+    percentages_by_region = {row['region']: f"{row['percentage']}%" for _, row in das_by_region_df.iterrows()}
+    
+    region_percentages_html = ""
+    for region, percentage in percentages_by_region.items():
+        region_percentages_html += f'<div class="sub-list-title"> {region}: {percentage}</div>\n'
+    
+    st.subheader("Total Stats")
+    st.markdown(f"""
+    <div class="container">
+        <div class="row">
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="basic_card">
+                    <div class="title">Total no. of DAs</div>
+                    <div class="sub-title"><span class="bullet_green">&#8226;</span> {total_no_of_das}</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="basic_card">
+                    <div class="title">Average DA per kebele</div>
+                    <div class="sub-title"><span class="bullet_green">&#8226;</span> {average_da_per_kebele}</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="basic_card">
+                    <div class="title">DA by gender</div>
+                    <div class="gender-info"><span class="bullet_green">&#8226;</span> Male: {percentage_male:.2f}%</div>
+                    <div class="gender-info"><span class="bullet_orange">&#8226;</span> Female: {percentage_female:.2f}%</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="basic_card">
+                    <div class="title">Total specialisations</div>
+                    <div class="sub-title"><span class="bullet_green">&#8226;</span> {total_specialization}</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="basic_card">
+                    <div class="title">DAs by region</div>
+                    <div class="flex_container">
+                        <div>chart</div>
+                        <div class="sub-list-title">{region_percentages_html}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+                <div class="basic_card">
+                    <div class="title">Location stats</div>
+                    <div class="basic_card_row">
+                        <div class="basic_card_row_item"><span class="bullet_yellow">&#8226;</span> Region: {total_regions}</div>
+                        <div class="basic_card_row_item"><span class="bullet_green">&#8226;</span> Zone: {total_zones}</div>
+                    </div>
+                    <div class="basic_card_row">
+                        <div class="basic_card_row_item"><span class="bullet_blue">&#8226;</span> Woreda: {total_woredas}</div>
+                        <div class="basic_card_row_item"><span class="bullet_orange">&#8226;</span> Kebele: {total_kebeles}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
