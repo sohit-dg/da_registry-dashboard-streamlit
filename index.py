@@ -388,5 +388,10 @@ def main():
                 </div>
         </div>
     """, unsafe_allow_html=True)
+    col1, col2 = st.columns([1, 1])
+    with col1:
+        st.subheader("DA by specialisations")
+    with col2:
+        st.subheader("DA by education level")
 if __name__ == "__main__":
     main()     
