@@ -412,8 +412,8 @@ def main():
         "dataZoom": [
             {
                 "type": "slider",
-                "start": 0,
-                "end": 100
+                "height": 68,
+                "bottom": 0,
             },
             {
                 "type": "inside",
