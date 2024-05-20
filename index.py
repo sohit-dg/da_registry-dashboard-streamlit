@@ -14,7 +14,7 @@ st.set_page_config(
 )
 
 st.markdown("<h1 class='main_heading'>DA Registry Dashboard</h1>", unsafe_allow_html=True)
-
+st.divider()
 def get_database_connection():
     return psycopg2.connect(
         host=os.getenv("DB_HOST"),
@@ -37,7 +37,7 @@ def master_query():
     query = """
             SELECT 
                 COUNT(da.id) as total_no_of_das,
-                COUNT(da.id) / COUNT(DISTINCT k.id) as average_da_per_kebele,
+                COUNT(da.id) / NULLIF(COUNT(DISTINCT k.id), 0) as average_da_per_kebele,
                 SUM(CASE WHEN g.name = 'Male' THEN 1 ELSE 0 END) as count_male_da,
                 SUM(CASE WHEN g.name = 'Female' THEN 1 ELSE 0 END) as count_female_da,
                 COUNT(DISTINCT s.id) as total_specialization,
@@ -62,7 +62,7 @@ def master_query_with_filter(gender_filter, education_level_filter, specializati
     query = """
             SELECT 
                 COUNT(da.id) as total_no_of_das,
-                COUNT(da.id) / COUNT(DISTINCT k.id) as average_da_per_kebele,
+                COUNT(da.id) / NULLIF(COUNT(DISTINCT k.id), 0) as average_da_per_kebele,
                 SUM(CASE WHEN g.name = 'Male' THEN 1 ELSE 0 END) as count_male_da,
                 SUM(CASE WHEN g.name = 'Female' THEN 1 ELSE 0 END) as count_female_da,
                 COUNT(DISTINCT s.id) as total_specialization,
@@ -203,7 +203,7 @@ def fetch_woredas(zone_name):
     return fetch_data(query, [zone_name])
 
 def fetch_kebeles(woreda_name):
-    query = "SELECT DISTINCT name FROM registry_kebele WHERE woreda_id = (SELECT id FROM registry_woreda WHERE name = %s)"
+    query = "SELECT DISTINCT name FROM registry_kebele WHERE woreda_id = (SELECT id FROM registry_woreda WHERE name = %s LIMIT 1)"
     return fetch_data(query, [woreda_name])
 
 # Helper function to convert fetched data to list of strings
@@ -238,7 +238,7 @@ def main():
     df = pd.DataFrame(data)
 
     # Calculate total and percentages
-    df['Percentage'] = (df['Count'] / df['Count'].sum()) * 100
+    df['Percentage'] = (df['Count'] / df['Count'].sum()) * 100 if df['Count'].sum() > 0 else 0
 
     # Display results
     percentage_male = df.loc[df['Gender'] == 'Male', 'Percentage'].values[0]
@@ -293,7 +293,7 @@ def main():
                 </div>
         </div>
     """, unsafe_allow_html=True)
-
+    st.divider()
     st.subheader("Filter By")
     col21, col22, col23, col24, col25, col26, col27 = st.columns([1, 1, 1, 1, 1, 1, 1])
     
@@ -346,7 +346,7 @@ def main():
     filtered_df = pd.DataFrame(filtered_data_obj)
 
     # Calculate total and percentages
-    filtered_df['Percentage'] = (filtered_df['Count'] / filtered_df['Count'].sum()) * 100
+    filtered_df['Percentage'] = (filtered_df['Count'] / filtered_df['Count'].sum()) * 100 if filtered_df['Count'].sum() > 0 else 0
 
     # Display results
     filtered_percentage_male = filtered_df.loc[filtered_df['Gender'] == 'Male', 'Percentage'].values[0]
@@ -354,7 +354,7 @@ def main():
     
     das_by_education_level_data = fetch_data(get_das_by_education_level(gender_filter, education_level_filter, specialization_filter, region_filter, zone_filter, woreda_filter, kebele_filter))
     das_by_specialisations_level_data = fetch_data(get_das_by_specialisations(gender_filter, education_level_filter, specialization_filter, region_filter, zone_filter, woreda_filter, kebele_filter))
-
+    st.divider()
     st.subheader("DA by region")
     st.markdown(f"""
         <div class="grid_cont">
