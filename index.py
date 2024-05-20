@@ -4,7 +4,7 @@ import psycopg2
 import os
 import pandas as pd
 import plotly.express as px
-
+from streamlit_echarts import st_echarts
 load_dotenv()
 st.set_page_config(
     layout="wide",
@@ -387,17 +387,60 @@ def main():
     col1, col2 = st.columns([1, 1])
 
     das_by_specialisations_level_df = pd.DataFrame(das_by_specialisations_level_data, columns=['Count', 'Specialisations'])
-    das_by_specialisations_level_df_fig = px.bar(das_by_specialisations_level_df, x='Specialisations', y='Count', title='DAs by Specialisations')
-    
+    x_data = das_by_specialisations_level_df['Specialisations'].tolist()
+    y_data = das_by_specialisations_level_df['Count'].tolist()
+    options = {
+        "title": {
+            "text": ""
+        },
+        "tooltip": {},
+        "xAxis": {
+            "type": "category",
+            "data": x_data,
+            "axisLabel": {
+                "rotate": 90,
+                "rich": {
+                    "align": "left",
+                    "verticalAlign": "top"
+                }
+            },
+            "nameGap": 30
+        },
+        "yAxis": {
+            "type": "value"
+        },
+        "dataZoom": [
+            {
+                "type": "slider",
+                "start": 0,
+                "end": 100
+            },
+            {
+                "type": "inside",
+                "start": 0,
+                "end": 100
+            }
+        ],
+        "series": [
+            {
+                "name": "Count",
+                "type": "bar",
+                "data": y_data
+            }
+        ]
+    }    
     das_by_education_level_df = pd.DataFrame(das_by_education_level_data, columns=['count', 'Education Level'])
-    das_by_education_level_df_fig = px.pie(das_by_education_level_df, values='count', names='Education Level', title='DAs by Education Level')
+    das_by_education_level_df_fig = px.pie(das_by_education_level_df, values='count', names='Education Level', title='')
     with col1:
         st.subheader("DA by specialisations")
         with st.container(border=True):
-            st.plotly_chart(das_by_specialisations_level_df_fig, use_container_width=True)   
+            st_echarts(options=options, height="450px")     
     with col2:
         st.subheader("DA by education level")
         with st.container(border=True):
-            st.plotly_chart(das_by_education_level_df_fig, use_container_width=True)  
+            st.plotly_chart(das_by_education_level_df_fig, use_container_width=True)
 if __name__ == "__main__":
     main()     
+
+# das_by_specialisations_level_df_fig = px.bar(das_by_specialisations_level_df, y='Specialisations', x='Count', title='') 
+# st.plotly_chart(das_by_specialisations_level_df_fig, use_container_width=True)  
