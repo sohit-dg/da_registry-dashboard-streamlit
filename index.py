@@ -293,15 +293,7 @@ def main():
                 </div>
         </div>
     """, unsafe_allow_html=True)
-    # fig = px.pie(das_by_region_df, values='count', names='region', title='DAs by Region')
-    # col1, col2 = st.columns([1, 1])
-    # with col1:
-    #     with st.container(border=True):
-    #         st.plotly_chart(fig, use_container_width=True)
-    # with col2:
-    #     with st.container(border=True):
-    #         st.plotly_chart(fig, use_container_width=True)
-    
+
     st.subheader("Filter By")
     col21, col22, col23, col24, col25, col26, col27 = st.columns([1, 1, 1, 1, 1, 1, 1])
     
@@ -359,6 +351,10 @@ def main():
     # Display results
     filtered_percentage_male = filtered_df.loc[filtered_df['Gender'] == 'Male', 'Percentage'].values[0]
     filtered_percentage_female = filtered_df.loc[filtered_df['Gender'] == 'Female', 'Percentage'].values[0]
+    
+    das_by_education_level_data = fetch_data(get_das_by_education_level(gender_filter, education_level_filter, specialization_filter, region_filter, zone_filter, woreda_filter, kebele_filter))
+    das_by_specialisations_level_data = fetch_data(get_das_by_specialisations(gender_filter, education_level_filter, specialization_filter, region_filter, zone_filter, woreda_filter, kebele_filter))
+
     st.subheader("DA by region")
     st.markdown(f"""
         <div class="grid_cont">
@@ -389,9 +385,19 @@ def main():
         </div>
     """, unsafe_allow_html=True)
     col1, col2 = st.columns([1, 1])
+
+    das_by_specialisations_level_df = pd.DataFrame(das_by_specialisations_level_data, columns=['Count', 'Specialisations'])
+    das_by_specialisations_level_df_fig = px.bar(das_by_specialisations_level_df, x='Specialisations', y='Count', title='DAs by Specialisations')
+    
+    das_by_education_level_df = pd.DataFrame(das_by_education_level_data, columns=['count', 'Education Level'])
+    das_by_education_level_df_fig = px.pie(das_by_education_level_df, values='count', names='Education Level', title='DAs by Education Level')
     with col1:
         st.subheader("DA by specialisations")
+        with st.container(border=True):
+            st.plotly_chart(das_by_specialisations_level_df_fig, use_container_width=True)   
     with col2:
         st.subheader("DA by education level")
+        with st.container(border=True):
+            st.plotly_chart(das_by_education_level_df_fig, use_container_width=True)  
 if __name__ == "__main__":
     main()     
