@@ -13,7 +13,7 @@ st.set_page_config(
     page_icon=None,
 )
 
-st.title("DA Registry Dashboard")
+st.markdown("<h1 class='main_heading'>DA Registry Dashboard</h1>", unsafe_allow_html=True)
 
 def get_database_connection():
     return psycopg2.connect(
@@ -252,7 +252,7 @@ def main():
     
     region_percentages_html = ""
     for region, percentage in percentages_by_region.items():
-        region_percentages_html += f'<div class="sub-list-title"><span class="bullet_green">&#8226;</span> {region}: {percentage}</div>\n'
+        region_percentages_html += f'<div class="sub-list-title"><span class="bullet_green">&#8226;</span> {region}: <span class="value_style">{percentage}</span></div>\n'
     
     st.subheader("Total Stats")
     st.markdown(f"""
@@ -267,8 +267,8 @@ def main():
                 </div>
                 <div class="basic_card">
                     <div class="title">DA by gender</div>
-                    <div class="gender-info"><span class="bullet_green">&#8226;</span> Male: {percentage_male:.2f}%</div>
-                    <div class="gender-info"><span class="bullet_orange">&#8226;</span> Female: {percentage_female:.2f}%</div>
+                    <div class="gender-info"><span class="bullet_green">&#8226;</span> Male: <span class="value_style">{percentage_male:.2f}%</span></div>
+                    <div class="gender-info"><span class="bullet_orange">&#8226;</span> Female: <span class="value_style">{percentage_female:.2f}%</span></div>
                 </div>
                 <div class="basic_card">
                     <div class="title">Total specialisations</div>
@@ -283,12 +283,12 @@ def main():
                 <div class="basic_card">
                     <div class="title">Location stats</div>
                     <div class="basic_card_row">
-                        <div class="basic_card_row_item"><span class="bullet_yellow">&#8226;</span> Region: {total_regions}</div>
-                        <div class="basic_card_row_item"><span class="bullet_green">&#8226;</span> Zone: {total_zones}</div>
+                        <div class="basic_card_row_item"><span class="bullet_yellow">&#8226;</span> Region: <span class="value_style">{total_regions}</span></div>
+                        <div class="basic_card_row_item"><span class="bullet_green">&#8226;</span> Zone: <span class="value_style">{total_zones}</span></div>
                     </div>
                     <div class="basic_card_row">
-                        <div class="basic_card_row_item"><span class="bullet_blue">&#8226;</span> Woreda: {total_woredas}</div>
-                        <div class="basic_card_row_item"><span class="bullet_orange">&#8226;</span> Kebele: {total_kebeles}</div>
+                        <div class="basic_card_row_item"><span class="bullet_blue">&#8226;</span> Woreda: <span class="value_style">{total_woredas}</span></div>
+                        <div class="basic_card_row_item"><span class="bullet_orange">&#8226;</span> Kebele: <span class="value_style">{total_kebeles}</span></div>
                     </div>
                 </div>
         </div>
@@ -368,18 +368,18 @@ def main():
                 </div>
                 <div class="basic_card">
                     <div class="title">DA by gender</div>
-                    <div class="gender-info"><span class="bullet_green">&#8226;</span> Male: {filtered_percentage_male:.2f}%</div>
-                    <div class="gender-info"><span class="bullet_orange">&#8226;</span> Female: {filtered_percentage_female:.2f}%</div>
+                    <div class="gender-info"><span class="bullet_green">&#8226;</span> Male: <span class="value_style">{filtered_percentage_male:.2f}%</span></div>
+                    <div class="gender-info"><span class="bullet_orange">&#8226;</span> Female: <span class="value_style">{filtered_percentage_female:.2f}%</span></div>
                 </div>
                 <div class="basic_card">
                     <div class="title">Location stats</div>
                     <div class="basic_card_row">
-                        <div class="basic_card_row_item"><span class="bullet_yellow">&#8226;</span> Region: {filtered_total_regions}</div>
-                        <div class="basic_card_row_item"><span class="bullet_green">&#8226;</span> Zone: {filtered_total_zones}</div>
+                        <div class="basic_card_row_item"><span class="bullet_yellow">&#8226;</span> Region: <span class="value_style">{filtered_total_regions}</span></div>
+                        <div class="basic_card_row_item"><span class="bullet_green">&#8226;</span> Zone: <span class="value_style">{filtered_total_zones}</span></div>
                     </div>
                     <div class="basic_card_row">
-                        <div class="basic_card_row_item"><span class="bullet_blue">&#8226;</span> Woreda: {filtered_total_woredas}</div>
-                        <div class="basic_card_row_item"><span class="bullet_orange">&#8226;</span> Kebele: {filtered_total_kebeles}</div>
+                        <div class="basic_card_row_item"><span class="bullet_blue">&#8226;</span> Woreda: <span class="value_style">{filtered_total_woredas}</span></div>
+                        <div class="basic_card_row_item"><span class="bullet_orange">&#8226;</span> Kebele: <span class="value_style">{filtered_total_kebeles}</span></div>
                     </div>
                 </div>
         </div>
