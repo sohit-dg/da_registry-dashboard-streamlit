@@ -17,11 +17,11 @@ st.markdown("<h1 class='main_heading'>DA Registry Dashboard</h1>", unsafe_allow_
 st.divider()
 def get_database_connection():
     return psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        port=os.getenv("DB_PORT"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME")
+        host=os.getenv("DA_DB_HOST"),
+        port=os.getenv("DA_DB_PORT"),
+        user=os.getenv("DA_DB_USER"),
+        password=os.getenv("DA_DB_PASSWORD"),
+        database=os.getenv("DA_DB_NAME")
     )
 
 @st.cache_data
